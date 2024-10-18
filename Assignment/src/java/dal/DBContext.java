@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author sonnt-local
+ * @author sonnt-local fixed by dung
  */
 public abstract class DBContext<T> {
     protected Connection connection;
