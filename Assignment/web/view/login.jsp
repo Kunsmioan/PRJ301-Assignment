@@ -12,22 +12,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Form</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f7f7f7;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-
         .login-form {
-            background-color: #ffffff;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 2px;
             width: 300px;
+            margin: 50px;
+            border: solid 1px;
         }
 
         .login-form h2 {
@@ -43,7 +33,7 @@
 
         .login-form input[type="text"],
         .login-form input[type="password"] {
-            width: 100%;
+            width: 90%;
             padding: 10px;
             margin-bottom: 15px;
             border: 1px solid #ccc;
@@ -51,8 +41,9 @@
         }
 
         .login-form input[type="submit"] {
-            width: 100%;
+            width: 97%;
             padding: 10px;
+            justify-items: center;
             background-color: #4CAF50;
             color: white;
             border: none;
