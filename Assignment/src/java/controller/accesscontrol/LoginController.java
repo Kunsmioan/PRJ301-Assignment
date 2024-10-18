@@ -14,7 +14,7 @@ import java.io.IOException;
 
 /**
  *
- * @author sonng
+ * @author sonnt
  */
 public class LoginController extends HttpServlet {
 
@@ -22,27 +22,24 @@ public class LoginController extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String user = req.getParameter("username");
         String pass = req.getParameter("password");
-        
+
         UserDBContext db = new UserDBContext();
         User account = db.get(user, pass);
-        
-        if(account!=null)
-        {
+
+        if (account != null) {
             req.getSession().setAttribute("account", account);
-            req.getRequestDispatcher("../check/action").forward(req, resp);
-        }
-        else
-        {
+            resp.sendRedirect(req.getContextPath() + "/view/action");
+        } else {
             resp.getWriter().println("login failed!");
         }
-        
+
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         //pre-processing
-        req.getRequestDispatcher("../view/login.jsp").forward(req, resp);
+        req.getRequestDispatcher("login.html").forward(req, resp);
         //post-processing
     }
-    
+
 }
