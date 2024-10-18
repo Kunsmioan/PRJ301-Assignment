@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author sonnt-local fixed by dung
+ * @author sonnt-local
  */
 public abstract class DBContext<T> {
     protected Connection connection;
@@ -25,7 +25,7 @@ public abstract class DBContext<T> {
             connection = DriverManager.getConnection(url, user, pass);
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
+        } catch (java.sql.SQLException ex) {
             Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE, null, ex);
         }
         

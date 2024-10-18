@@ -17,34 +17,15 @@ import java.util.logging.Logger;
  * @author sonnt-local
  */
 public class UserDBContext extends DBContext<User> {
-    public static void main(String[] args) {
-        // Assuming you have a UserDBContext class that provides a connection to the database
-        UserDBContext userDB = new UserDBContext();  // Initialize the context (you may need to modify this part depending on your actual connection setup)
-
-        // Test username and password
-        String testUsername = "admin1";
-        String testPassword = "123";
-
-        // Call the get method to retrieve the user
-        User user = userDB.get(testUsername, testPassword);
-
-        // Check if user is returned and display results
-        if (user != null) {
-            System.out.println("User found: ");
-            System.out.println("Username: " + user.getUsername());
-        } else {
-            System.out.println("No user found with the provided credentials.");
-        }
-    }
 
     public ArrayList<Role> getRoles(String username) {
-        String sql = "SELECT r.rid,r.rname,f.fid,f.fname,f.url FROM [User] u \n"
+        String sql = "SELECT r.RoleID,r.RoleName,f.FeatureID,f.FeatureName,f.url FROM [User] u \n"
                 + "	INNER JOIN UserRole ur ON ur.username = u.username\n"
-                + "	INNER JOIN [Role] r ON r.rid = ur.rid\n"
-                + "	INNER JOIN RoleFeature rf ON r.rid = rf.rid\n"
-                + "	INNER JOIN Feature f ON f.fid = rf.fid\n"
+                + "	INNER JOIN [Role] r ON r.RoleID = ur.RoleID\n"
+                + "	INNER JOIN RoleFeature rf ON r.RoleID = rf.RoleID\n"
+                + "	INNER JOIN Feature f ON f.FeatureID = rf.FeatureID\n"
                 + "WHERE u.username = ?\n"
-                + "ORDER BY r.rid, f.fid ASC";
+                + "ORDER BY r.RoleID, f.FeatureID ASC";
         
         PreparedStatement stm = null;
         ArrayList<Role> roles = new ArrayList<>();
@@ -56,23 +37,23 @@ public class UserDBContext extends DBContext<User> {
             c_role.setId(-1);
             while(rs.next())
             {
-                int rid = rs.getInt("rid");
+                int rid = rs.getInt("RoleID");
                 if(rid != c_role.getId())
                 {
                     c_role = new Role();
                     c_role.setId(rid);
-                    c_role.setName(rs.getString("rname"));
+                    c_role.setName(rs.getString("RoleName"));
                     roles.add(c_role);
                 }
                 
                 Feature f = new Feature();
-                f.setId(rs.getInt("fid"));
-                f.setName(rs.getString("fname"));
+                f.setId(rs.getInt("FeatureID"));
+                f.setName(rs.getString("FeatureName"));
                 f.setUrl(rs.getString("url"));
                 c_role.getFeatures().add(f);
                 f.setRoles(roles);
             }
-        } catch (SQLException ex) {
+        } catch (java.sql.SQLException ex) {
             Logger.getLogger(UserDBContext.class.getName()).log(Level.SEVERE, null, ex);
         }
         finally
@@ -80,7 +61,7 @@ public class UserDBContext extends DBContext<User> {
             try {
                 stm.close();
                 connection.close();
-            } catch (SQLException ex) {
+            } catch (java.sql.SQLException ex) {
                 Logger.getLogger(UserDBContext.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
@@ -90,7 +71,7 @@ public class UserDBContext extends DBContext<User> {
 
     public User get(String username, String password) {
         //encoding username / password
-        String sql = "SELECT username, password FROM [User] \n"
+        String sql = "SELECT username FROM [User] \n"
                 + "WHERE username = ? AND [password] = ?";
         PreparedStatement stm = null;
         User user = null;
@@ -103,13 +84,13 @@ public class UserDBContext extends DBContext<User> {
                 user = new User();
                 user.setUsername(username);
             }
-        } catch (SQLException ex) {
+        } catch (java.sql.SQLException ex) {
             Logger.getLogger(UserDBContext.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             try {
                 stm.close();
                 connection.close();
-            } catch (SQLException ex) {
+            } catch (java.sql.SQLException ex) {
                 Logger.getLogger(UserDBContext.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
@@ -142,3 +123,4 @@ public class UserDBContext extends DBContext<User> {
     }
 
 }
+
