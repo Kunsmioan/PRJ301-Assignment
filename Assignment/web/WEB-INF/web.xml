@@ -12,6 +12,10 @@
         <servlet-name>EmployeeActionController</servlet-name>
         <servlet-class>controller.employee.EmployeeActionController</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>ProductionPlanLoadPlansController</servlet-name>
+        <servlet-class>controller.productionplan.ProductionPlanLoadPlansController</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>LoginController</servlet-name>
         <url-pattern>/login</url-pattern>
@@ -19,5 +23,9 @@
     <servlet-mapping>
         <servlet-name>EmployeeActionController</servlet-name>
         <url-pattern>/view/action</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ProductionPlanLoadPlansController</servlet-name>
+        <url-pattern>/work/productionplan/loadPlans</url-pattern>
     </servlet-mapping>
 </web-app>

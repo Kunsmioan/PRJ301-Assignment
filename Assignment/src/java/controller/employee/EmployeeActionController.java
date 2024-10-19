@@ -4,12 +4,10 @@
  */
 package controller.employee;
 
-import controller.accesscontrol.BaseRBACController;
 import dal.EmployeeDBContext;
 import entity.accesscontrol.Feature;
 import entity.accesscontrol.User;
 import java.io.IOException;
-import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
