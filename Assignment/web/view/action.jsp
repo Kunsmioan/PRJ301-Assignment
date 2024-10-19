@@ -20,7 +20,7 @@
 
     <body>
         <h2>Hello Mr. ${sessionScope.account.username}</h2>
-        <h3>Action URLs:</h3>
+        <h3>Action:</h3>
         <ul>
             <c:forEach items="${requestScope.features}" var="feature">
                 <li>
