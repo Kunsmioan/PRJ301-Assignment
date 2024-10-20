@@ -5,10 +5,6 @@
 package dal.assignment;
 
 import dal.DBContext;
-import dal.UserDBContext;
-import entity.accesscontrol.Feature;
-import entity.accesscontrol.Role;
-import entity.accesscontrol.User;
 import entity.assignment.Department;
 import entity.assignment.Plan;
 import entity.assignment.PlanCampain;
@@ -25,63 +21,61 @@ import java.sql.*;
  */
 public class PlanDBContext extends DBContext<Plan> {
 
-
     public static void main(String[] args) {
-        // Create a dummy user (assume this user exists in your database)
-        User user = new User();
-        user.setUsername("admin4"); // Use a valid username
+        // Create a dummy Plan object
+        Plan dummyPlan = new Plan();
+        dummyPlan.setName("Dummy Plan");
+        dummyPlan.setStart(Date.valueOf("2024-01-01"));
+        dummyPlan.setEnd(Date.valueOf("2024-12-31"));
 
-        // Fetch user roles and permissions
-        UserDBContext userDbContext = new UserDBContext();
-        ArrayList<Role> roles = userDbContext.getRoles(user.getUsername());
-        user.setRoles(roles);
+        // Create a Department object and set its ID
+        Department dummyDept = new Department();
+        dummyDept.setId(1); // Assuming this department exists
+        dummyPlan.setDept(dummyDept);
 
-        // Check if user is authorized to delete
-        String deleteUrl = "work/productionplan/create"; // Adjust this URL based on your servlet mapping
-        boolean isAuthorized = false;
+        // Create a dummy campaign
+        PlanCampain dummyCampain = new PlanCampain();
+        Product dummyProduct = new Product();
+        dummyProduct.setId(1); // Assuming this product exists
+        dummyCampain.setProduct(dummyProduct);
+        dummyCampain.setQuantity(10); // Example quantity
+        dummyCampain.setEstimate(100.0f); // Example estimate
+        dummyPlan.getCampains().add(dummyCampain);
 
-        for (Role role : user.getRoles()) {
-            for (Feature feature : role.getFeatures()) {
-                if (feature.getUrl().equals(deleteUrl)) {
-                    isAuthorized = true;
-                    break;
-                }
-            }
-            if (isAuthorized) {
-                break;
-            }
-        }
-
-        if (!isAuthorized) {
-            System.out.println("User is not authorized to perform delete operation.");
-            return; // Stop further processing
-        }
-
-        // Create a dummy plan object to delete
-        Plan planToDelete = new Plan();
-        planToDelete.setId(1); // Use a valid plan ID that you want to delete
-
-        // Instantiate PlanDBContext and perform delete operation
-        PlanDBContext planDbContext = new PlanDBContext();
+        // Insert the dummy plan into the database
+        PlanDBContext dbContext = new PlanDBContext();
         try {
-            planDbContext.delete(planToDelete);
-            System.out.println("Plan deleted successfully!");
+            dbContext.insert(dummyPlan);
+            System.out.println("Dummy plan inserted successfully!");
         } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("Failed to delete the plan: " + e.getMessage());
+            e.printStackTrace(); // Print any error that occurs during insertion
+            System.out.println("Failed to insert dummy plan: " + e.getMessage());
         }
+        PlanDBContext planDBContext = new PlanDBContext();
 
-        // Verify if the plan is deleted
-        Plan deletedPlan = planDbContext.get(planToDelete.getId());
+        planDBContext.delete(dummyPlan);
+
+        // Step 4: Insert the dummy plan into the database
+    try {
+        // Step 5: Delete the dummy plan
+        dbContext.delete(dummyPlan);
+        System.out.println("Dummy plan deleted successfully!");
+
+        // Step 6: Verify if the plan is deleted by trying to fetch it
+        Plan deletedPlan = dbContext.get(dummyPlan.getId()); // Use get method to fetch plan by ID
         if (deletedPlan == null) {
             System.out.println("Plan deleted successfully!");
         } else {
-            System.out.println("Failed to delete the plan. It may still exist.");
+            System.out.println("Failed to delete the plan. It still exists in the database.");
         }
-}
+    } catch (Exception e) {
+        e.printStackTrace(); // Print any error that occurs during insertion or deletion
+        System.out.println("Error during plan processing: " + e.getMessage());
+    }
+    }
 
-@Override
-public void insert(Plan plan) {
+    @Override
+    public void insert(Plan plan) {
         try {
             // Insert Plan first and get the generated PlanID
             String insertPlanSQL = "INSERT INTO [Plan] (PlanName, StartDate, EndDate, Quantity, DepartmentID) VALUES (?, ?, ?, ?, ?)";
@@ -121,12 +115,12 @@ public void insert(Plan plan) {
     }
 
     @Override
-public void update(Plan entity) {
+    public void update(Plan entity) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override
-public void delete(Plan entity) {
+    public void delete(Plan entity) {
         String deleteCampaignSQL = "DELETE FROM PlanCampain WHERE PlanID = ?";
         String deletePlanSQL = "DELETE FROM [Plan] WHERE PlanID = ?";
         PreparedStatement stm_update = null;
@@ -141,17 +135,20 @@ public void delete(Plan entity) {
             stm_update = connection.prepareStatement(deletePlanSQL);
             stm_update.setInt(1, entity.getId());
             stm_update.executeUpdate();
-
-} catch (SQLException ex) {
-            Logger.getLogger(PlanDBContext.class  
-
-.getName()).log(Level.SEVERE, null, ex);
-        } 
+        } catch (SQLException ex) {
+            Logger.getLogger(PlanDBContext.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException ex) {
+                Logger.getLogger(PlanDBContext.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
 
     }
 
     @Override
-public ArrayList<Plan> list() {
+    public ArrayList<Plan> list() {
         ArrayList<Plan> plans = new ArrayList<>();
         PreparedStatement command = null;
         try {
@@ -182,29 +179,23 @@ public ArrayList<Plan> list() {
 
                 // Add to the list
                 plans.add(p);
-
-}
+            }
 
         } catch (SQLException ex) {
-            Logger.getLogger(PlanDBContext.class  
-
-.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PlanDBContext.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             try {
                 command.close();
                 connection.close();
-
-} catch (SQLException ex) {
-                Logger.getLogger(PlanDBContext.class  
-
-.getName()).log(Level.SEVERE, null, ex);
+            } catch (SQLException ex) {
+                Logger.getLogger(PlanDBContext.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         return plans;
     }
 
     @Override
-public Plan get(int id) {
+    public Plan get(int id) {
         PreparedStatement command = null;
         try {
             String sql = "SELECT PlanID, PlanName, StartDate, EndDate, Quantity, DepartmentID FROM [Plan] WHERE PlanID = ?";
@@ -228,13 +219,17 @@ public Plan get(int id) {
 
                 // You can also add logic to fetch associated PlanCampain objects, if needed
                 return plan;
-
-}
+            }
         } catch (SQLException ex) {
-            Logger.getLogger(PlanDBContext.class  
-
-.getName()).log(Level.SEVERE, null, ex);
-        } 
+            Logger.getLogger(PlanDBContext.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                command.close();
+                connection.close();
+            } catch (SQLException ex) {
+                Logger.getLogger(PlanDBContext.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
         return null;
     }
 
