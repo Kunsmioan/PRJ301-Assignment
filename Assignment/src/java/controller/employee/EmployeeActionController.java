@@ -28,7 +28,7 @@ public class EmployeeActionController extends HttpServlet {
         List<Feature> features = db.getListFeature(account.getUsername());
 
         req.setAttribute("features", features);
-        req.getRequestDispatcher("../view/action.jsp").forward(req, resp);
+        req.getRequestDispatcher("../employee/action.jsp").forward(req, resp);
     }
 
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

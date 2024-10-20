@@ -28,7 +28,7 @@ public class LoginController extends HttpServlet {
 
         if (account != null) {
             req.getSession().setAttribute("account", account);
-            resp.sendRedirect(req.getContextPath() + "/view/action");
+            resp.sendRedirect(req.getContextPath() + "/employee/action");
         } else {
             resp.getWriter().println("login failed!");
         }
