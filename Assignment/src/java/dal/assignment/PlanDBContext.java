@@ -5,6 +5,10 @@
 package dal.assignment;
 
 import dal.DBContext;
+import dal.UserDBContext;
+import entity.accesscontrol.Feature;
+import entity.accesscontrol.Role;
+import entity.accesscontrol.User;
 import entity.assignment.Department;
 import entity.assignment.Plan;
 import entity.assignment.PlanCampain;
@@ -21,40 +25,63 @@ import java.sql.*;
  */
 public class PlanDBContext extends DBContext<Plan> {
 
+
     public static void main(String[] args) {
-        // Create a dummy Plan object
-        Plan dummyPlan = new Plan();
-        dummyPlan.setName("Dummy Plan");
-        dummyPlan.setStart(Date.valueOf("2024-01-01"));
-        dummyPlan.setEnd(Date.valueOf("2024-12-31"));
+        // Create a dummy user (assume this user exists in your database)
+        User user = new User();
+        user.setUsername("admin4"); // Use a valid username
 
-        // Create a Department object and set its ID
-        Department dummyDept = new Department();
-        dummyDept.setId(1); // Assuming this department exists
-        dummyPlan.setDept(dummyDept);
+        // Fetch user roles and permissions
+        UserDBContext userDbContext = new UserDBContext();
+        ArrayList<Role> roles = userDbContext.getRoles(user.getUsername());
+        user.setRoles(roles);
 
-        // Create a dummy campaign
-        PlanCampain dummyCampain = new PlanCampain();
-        Product dummyProduct = new Product();
-        dummyProduct.setId(1); // Assuming this product exists
-        dummyCampain.setProduct(dummyProduct);
-        dummyCampain.setQuantity(10); // Example quantity
-        dummyCampain.setEstimate(100.0f); // Example estimate
-        dummyPlan.getCampains().add(dummyCampain);
+        // Check if user is authorized to delete
+        String deleteUrl = "work/productionplan/create"; // Adjust this URL based on your servlet mapping
+        boolean isAuthorized = false;
 
-        // Insert the dummy plan into the database
-        PlanDBContext dbContext = new PlanDBContext();
-        try {
-            dbContext.insert(dummyPlan);
-            System.out.println("Dummy plan inserted successfully!");
-        } catch (Exception e) {
-            e.printStackTrace(); // Print any error that occurs during insertion
-            System.out.println("Failed to insert dummy plan: " + e.getMessage());
+        for (Role role : user.getRoles()) {
+            for (Feature feature : role.getFeatures()) {
+                if (feature.getUrl().equals(deleteUrl)) {
+                    isAuthorized = true;
+                    break;
+                }
+            }
+            if (isAuthorized) {
+                break;
+            }
         }
-    }
 
-    @Override
-    public void insert(Plan plan) {
+        if (!isAuthorized) {
+            System.out.println("User is not authorized to perform delete operation.");
+            return; // Stop further processing
+        }
+
+        // Create a dummy plan object to delete
+        Plan planToDelete = new Plan();
+        planToDelete.setId(1); // Use a valid plan ID that you want to delete
+
+        // Instantiate PlanDBContext and perform delete operation
+        PlanDBContext planDbContext = new PlanDBContext();
+        try {
+            planDbContext.delete(planToDelete);
+            System.out.println("Plan deleted successfully!");
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Failed to delete the plan: " + e.getMessage());
+        }
+
+        // Verify if the plan is deleted
+        Plan deletedPlan = planDbContext.get(planToDelete.getId());
+        if (deletedPlan == null) {
+            System.out.println("Plan deleted successfully!");
+        } else {
+            System.out.println("Failed to delete the plan. It may still exist.");
+        }
+}
+
+@Override
+public void insert(Plan plan) {
         try {
             // Insert Plan first and get the generated PlanID
             String insertPlanSQL = "INSERT INTO [Plan] (PlanName, StartDate, EndDate, Quantity, DepartmentID) VALUES (?, ?, ?, ?, ?)";
@@ -94,17 +121,37 @@ public class PlanDBContext extends DBContext<Plan> {
     }
 
     @Override
-    public void update(Plan entity) {
+public void update(Plan entity) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override
-    public void delete(Plan entity) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+public void delete(Plan entity) {
+        String deleteCampaignSQL = "DELETE FROM PlanCampain WHERE PlanID = ?";
+        String deletePlanSQL = "DELETE FROM [Plan] WHERE PlanID = ?";
+        PreparedStatement stm_update = null;
+        try {
+            
+            stm_update = connection.prepareStatement(deleteCampaignSQL);
+            stm_update.setInt(1, entity.getId());
+            stm_update.executeUpdate();
+
+            // Now, delete the Plan
+            
+            stm_update = connection.prepareStatement(deletePlanSQL);
+            stm_update.setInt(1, entity.getId());
+            stm_update.executeUpdate();
+
+} catch (SQLException ex) {
+            Logger.getLogger(PlanDBContext.class  
+
+.getName()).log(Level.SEVERE, null, ex);
+        } 
+
     }
 
     @Override
-    public ArrayList<Plan> list() {
+public ArrayList<Plan> list() {
         ArrayList<Plan> plans = new ArrayList<>();
         PreparedStatement command = null;
         try {
@@ -135,24 +182,60 @@ public class PlanDBContext extends DBContext<Plan> {
 
                 // Add to the list
                 plans.add(p);
-            }
+
+}
 
         } catch (SQLException ex) {
-            Logger.getLogger(PlanDBContext.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PlanDBContext.class  
+
+.getName()).log(Level.SEVERE, null, ex);
         } finally {
             try {
                 command.close();
                 connection.close();
-            } catch (SQLException ex) {
-                Logger.getLogger(PlanDBContext.class.getName()).log(Level.SEVERE, null, ex);
+
+} catch (SQLException ex) {
+                Logger.getLogger(PlanDBContext.class  
+
+.getName()).log(Level.SEVERE, null, ex);
             }
         }
         return plans;
     }
 
     @Override
-    public Plan get(int id) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+public Plan get(int id) {
+        PreparedStatement command = null;
+        try {
+            String sql = "SELECT PlanID, PlanName, StartDate, EndDate, Quantity, DepartmentID FROM [Plan] WHERE PlanID = ?";
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, id);
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                // Create a Plan object and set its attributes from the result set
+                Plan plan = new Plan();
+                plan.setId(rs.getInt("PlanID"));
+                plan.setName(rs.getString("PlanName"));
+                plan.setStart(rs.getDate("StartDate"));
+                plan.setEnd(rs.getDate("EndDate"));
+                plan.setQuantity(rs.getInt("Quantity"));
+
+                // Create and set Department object based on DepartmentID
+                Department dept = new Department();
+                dept.setId(rs.getInt("DepartmentID"));
+                plan.setDept(dept);
+
+                // You can also add logic to fetch associated PlanCampain objects, if needed
+                return plan;
+
+}
+        } catch (SQLException ex) {
+            Logger.getLogger(PlanDBContext.class  
+
+.getName()).log(Level.SEVERE, null, ex);
+        } 
+        return null;
     }
 
 }

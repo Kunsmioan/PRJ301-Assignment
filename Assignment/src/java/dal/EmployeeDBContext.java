@@ -17,7 +17,7 @@ import java.util.List;
  */
 public class EmployeeDBContext extends DBContext {
     public static void main(String[] args) {
-        String testUsername = "admin2";
+        String testUsername = "admin4";
         EmployeeDBContext dao = new EmployeeDBContext();
         List<Feature> features = dao.getListFeature(testUsername);
 

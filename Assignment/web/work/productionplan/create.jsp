@@ -158,7 +158,7 @@
                     <tr>
                         <td>${p.name}<input type="hidden" value="${p.id}" name="pid"/></td>
                         <td><input type="text" name="quantity${p.id}" class="quantity" oninput="sumQuantities()" required/></td>
-                        <td><input type="text" name="estimate${p.id}" placeholder="${p.estimate}" readonly/></td>
+                        <td><input type="text" name="estimate${p.id}" value="${p.estimate}" /></td>
                     </tr>
                 </c:forEach>
             </table>
@@ -186,34 +186,6 @@
             function calculateTotalQuantity() {
                 sumQuantities();
                 return true; // Allows form submission after total quantity calculation.
-            }
-        </script>
-
-
-        <script>
-            // Function to sum quantities as the user enters values
-            function sumQuantities() {
-                let total = 0;
-                // Get all inputs with the class 'quantity'
-                let quantityInputs = document.querySelectorAll('.quantity');
-
-                // Loop through each input and add its value to total
-                quantityInputs.forEach(function (input) {
-                    let value = parseInt(input.value);
-                    if (!isNaN(value)) {
-                        total += value;
-                    }
-                });
-
-                // Display the total in the span and set it in the hidden field
-                document.getElementById('totalQuantity').textContent = total;
-                document.getElementById('hiddenTotalQuantity').value = total;
-            }
-
-            // Function called on form submission to ensure total quantity is updated
-            function calculateTotalQuantity() {
-                sumQuantities();  // To ensure the total is updated before submission
-                return true;  // Allow form submission
             }
         </script>
 

@@ -43,7 +43,7 @@ public class ProductionPlanCreateController extends HttpServlet {
         request.setAttribute("products", dbProduct.list());
         request.setAttribute("depts", dbDepts.get("WS"));
 
-        request.getRequestDispatcher("../employee/create.jsp").forward(request, response);
+        request.getRequestDispatcher("../productionplan/create.jsp").forward(request, response);
     }
 
     /**
@@ -102,7 +102,7 @@ public class ProductionPlanCreateController extends HttpServlet {
             // Insert
             PlanDBContext db = new PlanDBContext();
             db.insert(plan);
-            response.sendRedirect("../work/productionplan/loadPlans");
+            response.sendRedirect("../productionplan/loadPlansPPD");
         } else {
             response.getWriter().println("Your plan does not have any products / campaigns");
         }

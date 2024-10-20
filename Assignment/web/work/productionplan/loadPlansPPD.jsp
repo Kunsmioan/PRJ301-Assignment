@@ -29,7 +29,7 @@
                 var result = confirm("Are you want to delete id:" + id + "?");
                 if (result)
                 {
-                    document.getElementById("frmRemovePlan$" + id).submit();
+                    document.getElementById("frmRemovePlan" + id).submit();
                 }
             }
             function updatePlan(id)
@@ -71,7 +71,7 @@
                             <a href="javascript:updatePlan(${plan.id});">Edit</a>
                             <input type="button" value="Remove" onclick="removePlan(${plan.id})"/>
                             <form id="frmRemovePlan${plan.id}" action="delete" method="POST">
-                                <input type="hidden" name="id" value="${e.id}"/>
+                                <input type="hidden" name="id" value="${plan.id}"/>
                             </form>
                         </td>
                     </tr>
