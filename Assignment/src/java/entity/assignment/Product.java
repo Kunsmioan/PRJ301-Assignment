@@ -11,6 +11,15 @@ package entity.assignment;
 public class Product {
     private int id;
     private String name;
+    private float estimate;
+
+    public float getEstimate() {
+        return estimate;
+    }
+
+    public void setEstimate(float estimate) {
+        this.estimate = estimate;
+    }
 
     public int getId() {
         return id;

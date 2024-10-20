@@ -42,6 +42,7 @@ public class ProductDBContext extends DBContext<Product> {
         try {
             String sql = "SELECT [ProductID]\n"
                     + "      ,[ProductName]\n"
+                    + "      ,[Estimate]\n"
                     + "  FROM [Product]";
 
             command = connection.prepareStatement(sql);
@@ -50,6 +51,7 @@ public class ProductDBContext extends DBContext<Product> {
                 Product p = new Product();
                 p.setId(rs.getInt("ProductID"));
                 p.setName(rs.getString("ProductName"));
+                p.setEstimate(rs.getFloat("Estimate"));
                 products.add(p);
             }
 
