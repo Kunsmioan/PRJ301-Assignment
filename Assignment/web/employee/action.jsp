@@ -21,7 +21,7 @@
     <body>
         <h2>Hello Mr. ${sessionScope.account.username}</h2>
         <ul>
-            <c:forEach items="${requestScope.features}" var="feature">
+            <c:forEach items="${requestScope.features}" var="feature" begin = '0' end = '3'>
                 <li>
                     <a href="${pageContext.request.contextPath}${feature.url}">${feature.name}</a> <!-- Link to feature URL -->
                 </li>
