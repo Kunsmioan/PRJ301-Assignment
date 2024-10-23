@@ -1,11 +1,11 @@
 <%-- 
-    Document   : create
-    Created on : Oct 16, 2024, 4:45:34 PM
-    Author     : sonnt-local
+    Document   : update
+    Created on : Oct 21, 2024, 3:56:35 PM
+    Author     : Admin
 --%>
 
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html>
 <html>
     <head>
@@ -117,60 +117,6 @@
                 white-space: nowrap;
             }
         </style>
-    </head>
-    <body>
-
-
-        <form action="create" method="POST" onsubmit="return calculateTotalQuantity()">
-            <h2>Create New Plan</h2>
-
-            <div class="form-section">
-                <label for="name">Plan Title:</label>
-                <input type="text" id="name" name="name" placeholder="Enter plan title" required/>
-            </div>
-
-            <div class="form-section">
-                <div class="date-group">
-                    <label class="date-label">From:</label>
-                    <input type="date" id="from" name="from" required/>
-
-                    <label class="date-label">To:</label>
-                    <input type="date" id="to" name="to" required/>
-                </div>
-            </div>
-
-            <div class="form-section">
-                <label for="workshop">Workshop:</label>
-                <select id="workshop" name="did" required>
-                    <c:forEach items="${requestScope.depts}" var="d">
-                        <option value="${d.id}">${d.name}</option>
-                    </c:forEach>
-                </select>
-            </div>
-
-            <table>
-                <tr>
-                    <th>Product</th>
-                    <th>Quantity</th>
-                    <th>Estimated Effort (per manhour)</th>
-                </tr>
-                <c:forEach items="${requestScope.products}" var="p">
-                    <tr>
-                        <td>${p.name}<input type="hidden" value="${p.id}" name="pid"/></td>
-                        <td><input type="text" name="quantity${p.id}" class="quantity" oninput="sumQuantities()" required/></td>
-                        <td><input type="text" name="estimate${p.id}" value="${p.estimate}" readonly/></td>
-                    </tr>
-                </c:forEach>
-            </table>
-
-            <div class="form-section">
-                <strong>Total Quantity:</strong> <span id="totalQuantity">0</span>
-                <input type="hidden" name="totalQuantity" id="hiddenTotalQuantity" value="0"/>
-            </div>
-
-            <input type="submit" value="Save"/>
-        </form>
-
         <script>
             function sumQuantities() {
                 let total = 0;
@@ -188,6 +134,74 @@
                 return true; // Allows form submission after total quantity calculation.
             }
         </script>
+    </head>
+    <body>
+
+
+        <form action="update" method="POST" onsubmit="return calculateTotalQuantity()">
+            <c:set var = "plan" value="${requestScope.plan}"></c:set>
+            <h2>Update Plan ${plan.id}</h2>
+            <!-- Hidden input field to pass the ID -->
+            <input type="hidden" name="id" value="${plan.id}"/>
+
+            <div class="form-section">
+                <label for="name">Plan Title:</label>
+                <input type="text" id="name" name="name" value = "${plan.name}" placeholder="${plan.name}" required/>
+            </div>
+
+            <div class="form-section">
+                <div class="date-group">
+                    <label class="date-label">From:</label>
+                    <input type="date" id="from" name="from" value="${plan.start}" required/>
+
+                    <label class="date-label">To:</label>
+                    <input type="date" id="to" name="to" value="${plan.end}" required/>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <label for="workshop">Workshop:</label>
+                <select id="workshop" name="did" required>
+                    <c:forEach items="${requestScope.depts}" var="d">
+                        <option 
+                        ${requestScope.plandept.id eq d.id?"selected=\"selected\"":""}
+                        value="${d.id}">${d.name}
+                        </option>
+                    </c:forEach>
+                </select>
+            </div>
+
+            <table>
+                <tr>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Estimated Effort (per manhour)</th>
+                </tr>
+                <c:forEach items="${requestScope.products}" var="p">
+                    <tr>
+                        <td>${p.name}
+                            <input type="hidden" value="${p.id}" name="pid"/>
+                        </td>
+                        <td>
+                            <input type="text" name="quantity${p.id}" 
+                                   value = "" 
+                                   class="quantity" oninput="sumQuantities()" required/>
+                        </td>
+                        <td>
+                            <input type="text" name="estimate${p.id}" value = "${p.estimate}" readonly/>
+                        </td>
+                    </tr>
+                </c:forEach>
+            </table>
+
+            <div class="form-section">
+                <strong>Total Quantity:</strong> <span id="totalQuantity">0</span>
+                <input type="hidden" name="totalQuantity" id="hiddenTotalQuantity" value="0"/>
+            </div>
+
+            <input type="submit" value="Save"/>
+        </form>
 
     </body>
 </html>
+

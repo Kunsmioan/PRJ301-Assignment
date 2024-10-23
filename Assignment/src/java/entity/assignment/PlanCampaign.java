@@ -4,16 +4,36 @@
  */
 package entity.assignment;
 
+import dal.assignment.ProductDBContext;
+import java.util.ArrayList;
+
 /**
  *
  * @author sonnt-local
  */
-public class PlanCampain {
+public class PlanCampaign {
     private int id;
     private Plan plan;
     private Product product;
     private int quantity;
     private float estimate;
+    
+      private ArrayList<Product> products = new ArrayList<>();
+
+    public ArrayList<Product> getProducts() {
+        ProductDBContext db = new ProductDBContext();
+        for(Product p : db.list()){
+            if(p.getId() == (id)){
+                products.add(p);
+            }
+        }
+        return products;
+    }
+
+    public void setProducts(ArrayList<Product> products) {
+        this.products = products;
+    }
+
 
     public int getId() {
         return id;
@@ -54,6 +74,5 @@ public class PlanCampain {
     public void setEstimate(float estimate) {
         this.estimate = estimate;
     }
-
 
 }

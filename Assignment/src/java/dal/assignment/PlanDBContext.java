@@ -7,7 +7,7 @@ package dal.assignment;
 import dal.DBContext;
 import entity.assignment.Department;
 import entity.assignment.Plan;
-import entity.assignment.PlanCampain;
+import entity.assignment.PlanCampaign;
 import entity.assignment.Product;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -21,57 +21,82 @@ import java.sql.*;
  */
 public class PlanDBContext extends DBContext<Plan> {
 
-    public static void main(String[] args) {
-        // Create a dummy Plan object
-        Plan dummyPlan = new Plan();
-        dummyPlan.setName("Dummy Plan");
-        dummyPlan.setStart(Date.valueOf("2024-01-01"));
-        dummyPlan.setEnd(Date.valueOf("2024-12-31"));
+   public static void main(String[] args) {
+    PlanDBContext dbContext = new PlanDBContext(); // Create PlanDBContext instance
 
-        // Create a Department object and set its ID
-        Department dummyDept = new Department();
-        dummyDept.setId(1); // Assuming this department exists
-        dummyPlan.setDept(dummyDept);
+    // Step 1: Create a dummy Plan object and set its properties
+    PlanDBContext db = new PlanDBContext();
+    Plan dummyPlan = db.get(30);
+ 
 
-        // Create a dummy campaign
-        PlanCampain dummyCampain = new PlanCampain();
-        Product dummyProduct = new Product();
-        dummyProduct.setId(1); // Assuming this product exists
-        dummyCampain.setProduct(dummyProduct);
-        dummyCampain.setQuantity(10); // Example quantity
-        dummyCampain.setEstimate(100.0f); // Example estimate
-        dummyPlan.getCampains().add(dummyCampain);
-
-        // Insert the dummy plan into the database
-        PlanDBContext dbContext = new PlanDBContext();
-        try {
-            dbContext.insert(dummyPlan);
-            System.out.println("Dummy plan inserted successfully!");
-        } catch (Exception e) {
-            e.printStackTrace(); // Print any error that occurs during insertion
-            System.out.println("Failed to insert dummy plan: " + e.getMessage());
+       System.out.println(dummyPlan.getName());
+       PlanCampaignDBContext pc = new PlanCampaignDBContext();
+        for(PlanCampaign p : pc.list()){
+            if(p.getPlan().getId() == (30)){
+                System.out.println(p.getQuantity() +", " +p.getEstimate());
+            }
         }
-        PlanDBContext planDBContext = new PlanDBContext();
+       System.out.println(dummyPlan.getCampains());
 
-        planDBContext.delete(dummyPlan);
-
-        // Step 4: Insert the dummy plan into the database
     try {
+        // Step 3: Insert the dummy plan into the database
+        dbContext.insert(dummyPlan);
+        System.out.println("Dummy plan inserted successfully!");
+
+        // Step 4: Fetch the inserted plan to verify it was added
+        Plan fetchedPlan = dbContext.get(dummyPlan.getId());
+        if (fetchedPlan != null) {
+            System.out.println("Fetched plan: " + fetchedPlan.getName());
+        } else {
+            System.out.println("No plan found with the given ID.");
+        }
+
         // Step 5: Delete the dummy plan
         dbContext.delete(dummyPlan);
         System.out.println("Dummy plan deleted successfully!");
 
-        // Step 6: Verify if the plan is deleted by trying to fetch it
-        Plan deletedPlan = dbContext.get(dummyPlan.getId()); // Use get method to fetch plan by ID
+        // Step 6: Verify deletion
+        Plan deletedPlan = dbContext.get(dummyPlan.getId());
         if (deletedPlan == null) {
             System.out.println("Plan deleted successfully!");
         } else {
             System.out.println("Failed to delete the plan. It still exists in the database.");
         }
     } catch (Exception e) {
-        e.printStackTrace(); // Print any error that occurs during insertion or deletion
+        e.printStackTrace();
         System.out.println("Error during plan processing: " + e.getMessage());
-    }
+    } 
+}
+
+
+    @Override
+    public Plan get(int id) {
+        PreparedStatement command = null;
+        ResultSet rs = null; // Declare ResultSet outside to close it in the finally block
+        try {
+            String sql = "SELECT PlanID, PlanName, StartDate, EndDate, Quantity, DepartmentID FROM [Plan] WHERE PlanID = ?";
+            command = connection.prepareStatement(sql);
+            command.setInt(1, id);
+            rs = command.executeQuery();
+
+            if (rs.next()) {
+                Plan plan = new Plan();
+                plan.setId(rs.getInt("PlanID"));
+                plan.setName(rs.getString("PlanName"));
+                plan.setStart(rs.getDate("StartDate"));
+                plan.setEnd(rs.getDate("EndDate"));
+                plan.setQuantity(rs.getInt("Quantity"));
+
+                Department dept = new Department();
+                dept.setId(rs.getInt("DepartmentID"));
+                plan.setDept(dept);
+
+                return plan;
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(PlanDBContext.class.getName()).log(Level.SEVERE, "Get failed", ex);
+        } 
+        return null;
     }
 
     @Override
@@ -96,11 +121,11 @@ public class PlanDBContext extends DBContext<Plan> {
                 plan.setId(generatedPlanID);
             }
 
-            // Now insert PlanCampain(s)
+            // Now insert PlanCampaign(s)
             String insertCampaignSQL = "INSERT INTO PlanCampain (PlanID, ProductID, Quantity, Estimate) VALUES (?, ?, ?, ?)";
             ps = connection.prepareStatement(insertCampaignSQL);
 
-            for (PlanCampain campaign : plan.getCampains()) {
+            for (PlanCampaign campaign : plan.getCampains()) {
                 ps.setInt(1, plan.getId());  // Use the generated PlanID
                 ps.setInt(2, campaign.getProduct().getId());
                 ps.setInt(3, campaign.getQuantity());
@@ -108,15 +133,56 @@ public class PlanDBContext extends DBContext<Plan> {
                 ps.executeUpdate();
             }
 
-            System.out.println("Dummy plan inserted successfully!");
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
     @Override
-    public void update(Plan entity) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public void update(Plan plan) {
+        try {
+            String updatePlanSQL = "UPDATE [dbo].[Plan]\n"
+                    + "   SET [PlanName] = ?\n"
+                    + "      ,[StartDate] = ?\n"
+                    + "      ,[EndDate] = ?\n"
+                    + "      ,[Quantity] = ?\n"
+                    + "      ,[DepartmentID] = ?\n"
+                    + " WHERE PlanID = ?";
+            PreparedStatement ps = null;
+
+            ps = connection.prepareStatement(updatePlanSQL);
+            ps.setString(1, plan.getName());
+            ps.setDate(2, plan.getStart());
+            ps.setDate(3, plan.getEnd());
+            ps.setInt(4, plan.getQuantity());
+            ps.setInt(5, plan.getDept().getId());
+            ps.setInt(6, plan.getId());
+            ps.executeUpdate(); // Execute the update
+
+            String updatePlanCampaignSQL = "UPDATE [dbo].[PlanCampain]\n"
+                    + "   SET [ProductID] = ?\n"
+                    + "      ,[Quantity] = ?\n"
+                    + "      ,[Estimate] = ?\n"
+                    + " WHERE PlanID = ?";
+            ps = connection.prepareStatement(updatePlanCampaignSQL);
+            for (PlanCampaign campaign : plan.getCampains()) {
+                ps.setInt(1, campaign.getProduct().getId());
+                ps.setInt(2, campaign.getQuantity());
+                ps.setFloat(3, campaign.getEstimate());
+                ps.setInt(4, campaign.getId());
+                ps.executeUpdate();
+            }
+
+        } catch (SQLException ex) {
+            Logger.getLogger(PlanDBContext.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException ex) {
+                Logger.getLogger(PlanDBContext.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
     }
 
     @Override
@@ -125,13 +191,12 @@ public class PlanDBContext extends DBContext<Plan> {
         String deletePlanSQL = "DELETE FROM [Plan] WHERE PlanID = ?";
         PreparedStatement stm_update = null;
         try {
-            
+
             stm_update = connection.prepareStatement(deleteCampaignSQL);
             stm_update.setInt(1, entity.getId());
             stm_update.executeUpdate();
 
             // Now, delete the Plan
-            
             stm_update = connection.prepareStatement(deletePlanSQL);
             stm_update.setInt(1, entity.getId());
             stm_update.executeUpdate();
@@ -192,45 +257,6 @@ public class PlanDBContext extends DBContext<Plan> {
             }
         }
         return plans;
-    }
-
-    @Override
-    public Plan get(int id) {
-        PreparedStatement command = null;
-        try {
-            String sql = "SELECT PlanID, PlanName, StartDate, EndDate, Quantity, DepartmentID FROM [Plan] WHERE PlanID = ?";
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setInt(1, id);
-
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                // Create a Plan object and set its attributes from the result set
-                Plan plan = new Plan();
-                plan.setId(rs.getInt("PlanID"));
-                plan.setName(rs.getString("PlanName"));
-                plan.setStart(rs.getDate("StartDate"));
-                plan.setEnd(rs.getDate("EndDate"));
-                plan.setQuantity(rs.getInt("Quantity"));
-
-                // Create and set Department object based on DepartmentID
-                Department dept = new Department();
-                dept.setId(rs.getInt("DepartmentID"));
-                plan.setDept(dept);
-
-                // You can also add logic to fetch associated PlanCampain objects, if needed
-                return plan;
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(PlanDBContext.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            try {
-                command.close();
-                connection.close();
-            } catch (SQLException ex) {
-                Logger.getLogger(PlanDBContext.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-        return null;
     }
 
 }

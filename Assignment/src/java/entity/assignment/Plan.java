@@ -3,6 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package entity.assignment;
+import dal.assignment.PlanCampaignDBContext;
 import java.sql.Date;
 import java.util.ArrayList;
 
@@ -17,6 +18,7 @@ public class Plan {
     private Date end;
     private Department dept;
     private int quantity;
+    
 
     public int getQuantity() {
         return quantity;
@@ -26,13 +28,19 @@ public class Plan {
         this.quantity = quantity;
     }
 
-    private ArrayList<PlanCampain> campains = new ArrayList<>();
+    private ArrayList<PlanCampaign> campains = new ArrayList<>();
 
-    public ArrayList<PlanCampain> getCampains() {
+    public ArrayList<PlanCampaign> getCampains() {
+        PlanCampaignDBContext db = new PlanCampaignDBContext();
+        for(PlanCampaign p : db.list()){
+            if(p.getPlan().getId() == (id)){
+                campains.add(p);
+            }
+        }
         return campains;
     }
 
-    public void setCampains(ArrayList<PlanCampain> campains) {
+    public void setCampains(ArrayList<PlanCampaign> campains) {
         this.campains = campains;
     }
 
