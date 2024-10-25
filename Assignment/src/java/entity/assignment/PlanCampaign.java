@@ -17,6 +17,15 @@ public class PlanCampaign {
     private Product product;
     private int quantity;
     private float estimate;
+    private int productId;
+
+    public int getProductId() {
+        return productId;
+    }
+
+    public void setProductId(int productId) {
+        this.productId = productId;
+    }
     
       private ArrayList<Product> products = new ArrayList<>();
 

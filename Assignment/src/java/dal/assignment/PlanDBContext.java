@@ -21,53 +21,51 @@ import java.sql.*;
  */
 public class PlanDBContext extends DBContext<Plan> {
 
-   public static void main(String[] args) {
-    PlanDBContext dbContext = new PlanDBContext(); // Create PlanDBContext instance
+    public static void main(String[] args) {
+        PlanDBContext dbContext = new PlanDBContext(); // Create PlanDBContext instance
 
-    // Step 1: Create a dummy Plan object and set its properties
-    PlanDBContext db = new PlanDBContext();
-    Plan dummyPlan = db.get(30);
- 
+        // Step 1: Create a dummy Plan object and set its properties
+        PlanDBContext db = new PlanDBContext();
+        Plan dummyPlan = db.get(30);
 
-       System.out.println(dummyPlan.getName());
-       PlanCampaignDBContext pc = new PlanCampaignDBContext();
-        for(PlanCampaign p : pc.list()){
-            if(p.getPlan().getId() == (30)){
-                System.out.println(p.getQuantity() +", " +p.getEstimate());
+        System.out.println(dummyPlan.getName());
+        PlanCampaignDBContext pc = new PlanCampaignDBContext();
+        for (PlanCampaign p : pc.list()) {
+            if (p.getPlan().getId() == (30)) {
+                System.out.println(p.getQuantity() + ", " + p.getEstimate());
             }
         }
-       System.out.println(dummyPlan.getCampains());
+        System.out.println(dummyPlan.getCampains());
 
-    try {
-        // Step 3: Insert the dummy plan into the database
-        dbContext.insert(dummyPlan);
-        System.out.println("Dummy plan inserted successfully!");
+        try {
+            // Step 3: Insert the dummy plan into the database
+            dbContext.insert(dummyPlan);
+            System.out.println("Dummy plan inserted successfully!");
 
-        // Step 4: Fetch the inserted plan to verify it was added
-        Plan fetchedPlan = dbContext.get(dummyPlan.getId());
-        if (fetchedPlan != null) {
-            System.out.println("Fetched plan: " + fetchedPlan.getName());
-        } else {
-            System.out.println("No plan found with the given ID.");
+            // Step 4: Fetch the inserted plan to verify it was added
+            Plan fetchedPlan = dbContext.get(dummyPlan.getId());
+            if (fetchedPlan != null) {
+                System.out.println("Fetched plan: " + fetchedPlan.getName());
+            } else {
+                System.out.println("No plan found with the given ID.");
+            }
+
+            // Step 5: Delete the dummy plan
+            dbContext.delete(dummyPlan);
+            System.out.println("Dummy plan deleted successfully!");
+
+            // Step 6: Verify deletion
+            Plan deletedPlan = dbContext.get(dummyPlan.getId());
+            if (deletedPlan == null) {
+                System.out.println("Plan deleted successfully!");
+            } else {
+                System.out.println("Failed to delete the plan. It still exists in the database.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error during plan processing: " + e.getMessage());
         }
-
-        // Step 5: Delete the dummy plan
-        dbContext.delete(dummyPlan);
-        System.out.println("Dummy plan deleted successfully!");
-
-        // Step 6: Verify deletion
-        Plan deletedPlan = dbContext.get(dummyPlan.getId());
-        if (deletedPlan == null) {
-            System.out.println("Plan deleted successfully!");
-        } else {
-            System.out.println("Failed to delete the plan. It still exists in the database.");
-        }
-    } catch (Exception e) {
-        e.printStackTrace();
-        System.out.println("Error during plan processing: " + e.getMessage());
-    } 
-}
-
+    }
 
     @Override
     public Plan get(int id) {
@@ -95,7 +93,7 @@ public class PlanDBContext extends DBContext<Plan> {
             }
         } catch (SQLException ex) {
             Logger.getLogger(PlanDBContext.class.getName()).log(Level.SEVERE, "Get failed", ex);
-        } 
+        }
         return null;
     }
 
@@ -159,18 +157,20 @@ public class PlanDBContext extends DBContext<Plan> {
             ps.setInt(6, plan.getId());
             ps.executeUpdate(); // Execute the update
 
+            // Now update PlanCampaign entries associated with the Plan
             String updatePlanCampaignSQL = "UPDATE [dbo].[PlanCampain]\n"
-                    + "   SET [ProductID] = ?\n"
-                    + "      ,[Quantity] = ?\n"
-                    + "      ,[Estimate] = ?\n"
-                    + " WHERE PlanID = ?";
-            ps = connection.prepareStatement(updatePlanCampaignSQL);
+                    + "   SET [Quantity] = ?,\n"
+                    + "       [Estimate] = ?\n"
+                    + " WHERE PlanCampnID = ? AND PlanID = ?";
+
             for (PlanCampaign campaign : plan.getCampains()) {
-                ps.setInt(1, campaign.getProduct().getId());
-                ps.setInt(2, campaign.getQuantity());
-                ps.setFloat(3, campaign.getEstimate());
-                ps.setInt(4, campaign.getId());
-                ps.executeUpdate();
+                ps = connection.prepareStatement(updatePlanCampaignSQL);
+                ps.setInt(1, campaign.getQuantity());
+                ps.setFloat(2, campaign.getEstimate());
+                ps.setInt(3, campaign.getId()); // Assuming PlanCampaign has a unique ID
+                ps.setInt(4, plan.getId()); // Use PlanID to ensure the campaign belongs to this plan
+                ps.executeUpdate(); // Execute the update for each PlanCampaign
+                ps.close(); // Close the statement for each update
             }
 
         } catch (SQLException ex) {

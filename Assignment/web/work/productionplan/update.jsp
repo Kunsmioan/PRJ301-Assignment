@@ -164,8 +164,8 @@
                 <select id="workshop" name="did" required>
                     <c:forEach items="${requestScope.depts}" var="d">
                         <option 
-                        ${requestScope.plandept.id eq d.id?"selected=\"selected\"":""}
-                        value="${d.id}">${d.name}
+                            ${requestScope.plandept.id eq d.id?"selected=\"selected\"":""}
+                            value="${d.id}">${d.name}
                         </option>
                     </c:forEach>
                 </select>
@@ -177,19 +177,11 @@
                     <th>Quantity</th>
                     <th>Estimated Effort (per manhour)</th>
                 </tr>
-                <c:forEach items="${requestScope.products}" var="p">
+                 <c:forEach items="${requestScope.products}" var="p">
                     <tr>
-                        <td>${p.name}
-                            <input type="hidden" value="${p.id}" name="pid"/>
-                        </td>
-                        <td>
-                            <input type="text" name="quantity${p.id}" 
-                                   value = "" 
-                                   class="quantity" oninput="sumQuantities()" required/>
-                        </td>
-                        <td>
-                            <input type="text" name="estimate${p.id}" value = "${p.estimate}" readonly/>
-                        </td>
+                        <td>${p.name}<input type="hidden" value="${p.id}" name="pid"/></td>
+                        <td><input type="text" name="quantity${p.id}" class="quantity" oninput="sumQuantities()"/></td>
+                        <td><input type="text" name="estimate${p.id}" value="${p.estimate}" readonly/></td>
                     </tr>
                 </c:forEach>
             </table>

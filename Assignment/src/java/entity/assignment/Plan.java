@@ -31,12 +31,6 @@ public class Plan {
     private ArrayList<PlanCampaign> campains = new ArrayList<>();
 
     public ArrayList<PlanCampaign> getCampains() {
-        PlanCampaignDBContext db = new PlanCampaignDBContext();
-        for(PlanCampaign p : db.list()){
-            if(p.getPlan().getId() == (id)){
-                campains.add(p);
-            }
-        }
         return campains;
     }
 

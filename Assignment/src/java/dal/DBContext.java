@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 /**
  *
  * @author sonnt-local
+ * @param <T>
  */
 public abstract class DBContext<T> {
     protected Connection connection;
@@ -23,9 +24,7 @@ public abstract class DBContext<T> {
             
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
             connection = DriverManager.getConnection(url, user, pass);
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (java.sql.SQLException ex) {
+        } catch (ClassNotFoundException | java.sql.SQLException ex) {
             Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE, null, ex);
         }
         
