@@ -21,16 +21,21 @@
     <body>
         <h2>Hello Mr. ${sessionScope.account.username}</h2>
         <ul>
-            <c:forEach items="${requestScope.features}" var="feature" begin = '0' end = '3'>
-                <li>
-                    <a href="${pageContext.request.contextPath}${feature.url}">${feature.name}</a> <!-- Link to feature URL -->
-                </li>
+            <c:forEach items="${requestScope.features}" var="feature" >
+                <c:choose>
+                    <c:when test = "${feature.id == 4 || feature.id == 6 || feature.id == 7 || index == 8}">
+                        <li>
+                            <a href="${pageContext.request.contextPath}${feature.url}">${feature.name}</a> <!-- Link to feature URL -->
+                        </li>
+
+                    </c:when>
+                </c:choose>
             </c:forEach>
         </ul>
-    <c:if test="${empty requestScope.features}">
-        <p>No features available for this user.</p>
-    </c:if>
-</body>
+        <c:if test="${empty requestScope.features}">
+            <p>No features available for this user.</p>
+        </c:if>
+    </body>
 
 
 </html>
