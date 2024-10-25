@@ -22,6 +22,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.sql.Date;
 import java.util.List;
+import validatation.Validation;
 
 /**
  *
@@ -55,7 +56,11 @@ public class ProductionPlanUpdateController extends BaseRBACController {
         String id = request.getParameter("id");
         int id_raw = Integer.parseInt(id);
         Plan plan = db.get(id_raw);
-        plan.setName(request.getParameter("name"));
+        
+        //validate name to uppercase
+        Validation validation = new Validation();
+        plan.setName(validation.nameValid(request.getParameter("name")));
+        
         plan.setStart(Date.valueOf(request.getParameter("from")));
         plan.setEnd(Date.valueOf(request.getParameter("to")));
         Department d = new Department();

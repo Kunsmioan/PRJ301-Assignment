@@ -18,6 +18,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.sql.*;
+import validatation.Validation;
 
 /**
  *
@@ -59,6 +60,9 @@ public class ProductionPlanCreateController extends HttpServlet {
             throws ServletException, IOException {
 
         Plan plan = new Plan();
+        //validate name to uppercase
+        Validation validation = new Validation();
+        plan.setName(validation.nameValid(request.getParameter("name")));
         plan.setName(request.getParameter("name"));
         plan.setStart(Date.valueOf(request.getParameter("from")));
         plan.setEnd(Date.valueOf(request.getParameter("to")));
@@ -85,14 +89,14 @@ public class ProductionPlanCreateController extends HttpServlet {
             String raw_quantity = request.getParameter("quantity" + pid);
             String raw_estimate = request.getParameter("estimate" + pid);
 
-            int quantity = (raw_quantity != null && raw_quantity.length() > 0) ? Integer.parseInt(raw_quantity) : 0;
-            float estimate = (raw_estimate != null && raw_estimate.length() > 0) ? Float.parseFloat(raw_estimate) : 0;
+            int quantity = (raw_quantity == null || raw_quantity.length() == 0) ? 0 :Integer.parseInt(raw_quantity);
+            float estimate = (raw_estimate == null || raw_estimate.length() == 0) ? 0 : Float.parseFloat(raw_estimate);
 
             c.setQuantity(quantity);
             c.setEstimate(estimate);
 
             // Check if both quantity and estimate are greater than 0
-            if (quantity > 0 && estimate > 0) {
+            if (quantity >= 0 && estimate >= 0) {
                 plan.getCampains().add(c);
             }
         }

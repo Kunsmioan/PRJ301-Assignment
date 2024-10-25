@@ -23,7 +23,7 @@
         <ul>
             <c:forEach items="${requestScope.features}" var="feature" >
                 <c:choose>
-                    <c:when test = "${feature.id == 4 || feature.id == 6 || feature.id == 7 || index == 8}">
+                    <c:when test = "${feature.id == 1 || feature.id == 4 || feature.id == 6 || feature.id == 7 || index == 8}">
                         <li>
                             <a href="${pageContext.request.contextPath}${feature.url}">${feature.name}</a> <!-- Link to feature URL -->
                         </li>
