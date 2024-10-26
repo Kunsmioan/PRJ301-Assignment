@@ -23,13 +23,25 @@
         <ul>
             <c:forEach items="${requestScope.features}" var="feature" >
                 <c:choose>
-                    <c:when test = "${feature.id == 1 || feature.id == 4 || feature.id == 6 || feature.id == 7 || index == 8}">
+                    <c:when test="${account.username == 'admin4' 
+                                    && (feature.id == 1 || feature.id == 4 
+                                    || feature.id == 6 || feature.id == 7 
+                                    || feature.id == 8)}">
                         <li>
-                            <a href="${pageContext.request.contextPath}${feature.url}">${feature.name}</a> <!-- Link to feature URL -->
+                            <a href="${pageContext.request.contextPath}${feature.url}">${feature.name}</a>
                         </li>
+                    </c:when>
 
+                    <c:when test="${(account.username == 'admin1' 
+                                    || account.username == 'admin2' 
+                                    || account.username == 'admin3') 
+                                    && (feature.id == 5 || feature.id == 6 || feature.id == 7)}">
+                        <li>
+                            <a href="${pageContext.request.contextPath}${feature.url}">${feature.name}</a>
+                        </li>
                     </c:when>
                 </c:choose>
+
             </c:forEach>
         </ul>
         <c:if test="${empty requestScope.features}">
