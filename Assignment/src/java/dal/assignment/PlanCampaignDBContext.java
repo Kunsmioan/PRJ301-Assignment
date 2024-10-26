@@ -24,7 +24,7 @@ public class PlanCampaignDBContext extends DBContext<PlanCampaign> {
         PlanCampaignDBContext db = new PlanCampaignDBContext();
 
         // Fetch the list of PlanCampaigns for the given Plan ID
-        List<PlanCampaign> pc = db.listByPlanId(30);
+        List<PlanCampaign> pc = db.listByPlanId(2);
 
         // Print original values
         System.out.println("Original Values:");

@@ -178,16 +178,19 @@
                     <th>Estimated Effort (per manhour)</th>
                 </tr>
                 <c:forEach items="${requestScope.products}" var="p">
+                    <!-- set quantityValue with the campaign have product's id equal product's id -->
+                    <c:set var="quantityValue" value=""/>
+                    <c:forEach items="${requestScope.campaign}" var="campaign">
+                        <c:if test="${campaign.product.id eq p.id}">
+                            <c:set var="quantityValue" value="${campaign.quantity}"/>
+                        </c:if>
+                    </c:forEach>
                     <tr>
                         <td>${p.name}<input type="hidden" value="${p.id}" name="pid"/></td>
                         <td>
                             <input type="text" name="quantity${p.id}"
-                                   <c:forEach items="${requestScope.campaign}" var="campaign">
-                                       value = "${campaign.product.id eq p.id ? campaign.quantity : ""}"
-                                   </c:forEach>
-                                   
+                                   value = "${quantityValue}"
                                    class="quantity" oninput="sumQuantities()"/>
-
                         </td>
 
                         <td><input type="text" name="estimate${p.id}" value="${p.estimate}" readonly/></td>
