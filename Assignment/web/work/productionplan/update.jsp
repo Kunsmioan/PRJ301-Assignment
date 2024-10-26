@@ -117,6 +117,8 @@
                 white-space: nowrap;
             }
         </style>
+        
+        <!--count total of quantity-->
         <script>
             function sumQuantities() {
                 let total = 0;
@@ -132,6 +134,18 @@
             function calculateTotalQuantity() {
                 sumQuantities();
                 return true; // Allows form submission after total quantity calculation.
+            }
+        </script>
+
+        <!--check negative number--> 
+        <script>
+            function checkNegative(input) {
+                const value = parseFloat(input.value);
+                if (value < 0) {
+                    alert("Quantity cannot be negative.");
+                    input.value = "";  // Clear the input if you want
+                    input.focus();     // Refocus on the field
+                }
             }
         </script>
     </head>
@@ -171,6 +185,7 @@
                 </select>
             </div>
 
+            <!--form for enter quantity (or estimate)-->
             <table>
                 <tr>
                     <th>Product</th>
@@ -190,7 +205,8 @@
                         <td>
                             <input type="text" name="quantity${p.id}"
                                    value = "${quantityValue}"
-                                   class="quantity" oninput="sumQuantities()"/>
+                                   class="quantity" oninput="sumQuantities()"
+                                   onblur="checkNegative(this)"/>
                         </td>
 
                         <td><input type="text" name="estimate${p.id}" value="${p.estimate}" readonly/></td>
@@ -198,6 +214,7 @@
                 </c:forEach>
             </table>
 
+            <!--count total quantity-->
             <div class="form-section">
                 <strong>Total Quantity:</strong> <span id="totalQuantity">0</span>
                 <input type="hidden" name="totalQuantity" id="hiddenTotalQuantity" value="0"/>

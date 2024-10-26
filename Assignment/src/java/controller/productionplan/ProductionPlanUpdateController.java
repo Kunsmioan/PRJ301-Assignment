@@ -56,11 +56,12 @@ public class ProductionPlanUpdateController extends BaseRBACController {
         String id = request.getParameter("id");
         int id_raw = Integer.parseInt(id);
         Plan plan = db.get(id_raw);
-        
-        //validate name to uppercase
+
+        //validate name to uppercase first letter
         Validation validation = new Validation();
         plan.setName(validation.nameValid(request.getParameter("name")));
-        
+
+        //get another attributes from form
         plan.setStart(Date.valueOf(request.getParameter("from")));
         plan.setEnd(Date.valueOf(request.getParameter("to")));
         Department d = new Department();
@@ -73,7 +74,7 @@ public class ProductionPlanUpdateController extends BaseRBACController {
         plan.setQuantity(planQuantity);  // Set the plan-level quantity
 
         // Retrieve the existing campaigns for this plan from the database
-        List<PlanCampaign> existingCampaigns = dbPC.listByPlanId(id_raw);  // Assume you have a method to fetch campaigns by plan ID
+        List<PlanCampaign> existCampaigns = dbPC.listByPlanId(id_raw);  // Assume you have a method to fetch campaigns by plan ID
 
         // Get product IDs (pids) from the form
         String[] pids = request.getParameterValues("pid");
@@ -86,42 +87,52 @@ public class ProductionPlanUpdateController extends BaseRBACController {
             String raw_quantity = request.getParameter("quantity" + pid);
             String raw_estimate = request.getParameter("estimate" + pid);
 
-            int quantity = (raw_quantity == null || raw_quantity.length() == 0) ? 0 : Integer.parseInt(raw_quantity);
-            float estimate = (raw_estimate == null || raw_estimate.length() == 0) ? 0 : Float.parseFloat(raw_estimate) ;
+            //check quantity and estimate
+            int quantity;
+            if (raw_quantity != null && !raw_quantity.isEmpty()) {
+                quantity = Integer.parseInt(raw_quantity);
+            } else {
+                quantity = 0;
+            }
+
+            float estimate;
+            if (raw_estimate != null && !raw_estimate.isEmpty()) {
+                estimate = Float.parseFloat(raw_estimate);
+            } else {
+                estimate = 0;
+            }
 
             // Find or create a new PlanCampaign for the product
-            PlanCampaign existingCampaign = null;
-            for (PlanCampaign c : existingCampaigns) {
+            PlanCampaign existCampaign = null;
+            for (PlanCampaign c : existCampaigns) {
                 if (c.getProduct().getId() == product.getId()) {
-                    existingCampaign = c;  // Found the existing campaign
+                    existCampaign = c;  // Found the existing campaign
                     break;
                 }
             }
 
-            // If no existing campaign was found, create a new one
-            if (existingCampaign == null) {
-                existingCampaign = new PlanCampaign();
-                existingCampaign.setProduct(product);  // Set the product for the campaign
-                existingCampaign.setPlan(plan);  // Associate the campaign with the plan
+            // If no exist campaign was found, create a new one
+            if (existCampaign == null) {
+                existCampaign = new PlanCampaign();
+                existCampaign.setProduct(product);  // Set the product for the campaign
+                existCampaign.setPlan(plan);  // Associate the campaign with the plan
             }
 
             // Set the quantity and estimate for the campaign
-            existingCampaign.setQuantity(quantity);
-            existingCampaign.setEstimate(estimate);
+            existCampaign.setQuantity(quantity);
+            existCampaign.setEstimate(estimate);
 
             // Check if both quantity and estimate are greater than 0
             if (quantity >= 0 && estimate >= 0) {
-                dbPC.updateQAE(existingCampaign); // Update in the database
+                dbPC.updateQAE(existCampaign); // Update only quantity and estimate
             }
         }
 
-        // Update the plan details in the database
+        // Update the plan
         db.update(plan);
 
-        // Redirect after successful update
+        // Redirect after updated successfully 
         response.sendRedirect("../productionplan/loadPlansPPD");
-// Continue with your existing logic to insert the plan
-//            response.getWriter().println("Your plan does not have any products / campaigns");
     }
 
 }
