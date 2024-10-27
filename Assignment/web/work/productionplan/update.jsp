@@ -117,7 +117,7 @@
                 white-space: nowrap;
             }
         </style>
-        
+
         <!--count total of quantity-->
         <script>
             function sumQuantities() {
@@ -166,11 +166,12 @@
             <div class="form-section">
                 <div class="date-group">
                     <label class="date-label">From:</label>
-                    <input type="date" id="from" name="from" value="${plan.start}" required/>
+                    <input type="date" id="from" name="from" required/>
 
                     <label class="date-label">To:</label>
-                    <input type="date" id="to" name="to" value="${plan.end}" required/>
+                    <input type="date" id="to" name="to" required/>
                 </div>
+                <span id="dateError" style="color: red; display: none;">The "To" date must be later than the "From" date.</span>
             </div>
 
             <div class="form-section">
@@ -222,6 +223,41 @@
 
             <input type="submit" value="Save"/>
         </form>
+            
+        <script>
+            const fromDate = document.getElementById("from");
+            const toDate = document.getElementById("to");
+            const dateError = document.getElementById("dateError");
+
+            function validateDates() {
+                // Ensure "From" date is earlier than "To" date before form submission
+                if (toDate.value && fromDate.value && toDate.value <= fromDate.value) {
+                    dateError.style.display = "inline";
+                    return false;  // Prevent form submission
+                }
+                dateError.style.display = "none";
+                return true;
+            }
+
+            fromDate.addEventListener("change", function () {
+                // Set "To" date minimum to "From" date
+                toDate.min = fromDate.value;
+
+                // Clear any error message if the date range becomes valid
+                if (toDate.value && toDate.value > fromDate.value) {
+                    dateError.style.display = "none";
+                }
+            });
+
+            toDate.addEventListener("change", function () {
+                // Validate date range on "To" date change
+                if (toDate.value && toDate.value <= fromDate.value) {
+                    dateError.style.display = "inline";
+                } else {
+                    dateError.style.display = "none";
+                }
+            });
+        </script>
 
     </body>
 </html>

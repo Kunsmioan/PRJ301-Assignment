@@ -116,7 +116,26 @@
             .date-label {
                 white-space: nowrap;
             }
-        </style>
+        </style> 
+
+        <script>
+            function sumQuantities() {
+                let total = 0;
+                const quantities = document.querySelectorAll('.quantity');
+                quantities.forEach(input => {
+                    const value = parseInt(input.value) || 0;
+                    total += value;
+                });
+                document.getElementById('totalQuantity').innerText = total;
+                document.getElementById('hiddenTotalQuantity').value = total;
+            }
+
+            function calculateTotalQuantity() {
+                sumQuantities();
+                return true; // Allows form submission after total quantity calculation.
+            }
+        </script>
+
     </head>
     <body>
 
@@ -137,6 +156,7 @@
                     <label class="date-label">To:</label>
                     <input type="date" id="to" name="to" required/>
                 </div>
+                <span id="dateError" style="color: red; display: none;">The "To" date must be later than the "From" date.</span>
             </div>
 
             <div class="form-section">
@@ -172,22 +192,38 @@
         </form>
 
         <script>
-            function sumQuantities() {
-                let total = 0;
-                const quantities = document.querySelectorAll('.quantity');
-                quantities.forEach(input => {
-                    const value = parseInt(input.value) || 0;
-                    total += value;
-                });
-                document.getElementById('totalQuantity').innerText = total;
-                document.getElementById('hiddenTotalQuantity').value = total;
+            const fromDate = document.getElementById("from");
+            const toDate = document.getElementById("to");
+            const dateError = document.getElementById("dateError");
+
+            function validateDates() {
+                // Ensure "From" date is earlier than "To" date before form submission
+                if (toDate.value && fromDate.value && toDate.value <= fromDate.value) {
+                    dateError.style.display = "inline";
+                    return false;  // Prevent form submission
+                }
+                dateError.style.display = "none";
+                return true;
             }
 
-            function calculateTotalQuantity() {
-                sumQuantities();
-                return true; // Allows form submission after total quantity calculation.
-            }
+            fromDate.addEventListener("change", function () {
+                // Set "To" date minimum to "From" date
+                toDate.min = fromDate.value;
+
+                // Clear any error message if the date range becomes valid
+                if (toDate.value && toDate.value > fromDate.value) {
+                    dateError.style.display = "none";
+                }
+            });
+
+            toDate.addEventListener("change", function () {
+                // Validate date range on "To" date change
+                if (toDate.value && toDate.value <= fromDate.value) {
+                    dateError.style.display = "inline";
+                } else {
+                    dateError.style.display = "none";
+                }
+            });
         </script>
-
     </body>
 </html>
