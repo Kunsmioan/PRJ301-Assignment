@@ -7,10 +7,6 @@ package entity.assignment;
 import dal.assignment.ProductDBContext;
 import java.util.ArrayList;
 
-/**
- *
- * @author sonnt-local
- */
 public class PlanCampaign {
     private int id;
     private Plan plan;
