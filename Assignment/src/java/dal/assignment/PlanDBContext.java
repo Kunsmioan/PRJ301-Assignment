@@ -5,6 +5,7 @@
 package dal.assignment;
 
 import dal.DBContext;
+import entity.accesscontrol.User;
 import entity.assignment.Department;
 import entity.assignment.Plan;
 import entity.assignment.PlanCampaign;
@@ -14,6 +15,9 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.sql.*;
+import java.util.HashMap;
+import java.util.Map;
+import validatation.Validation;
 
 /**
  *
@@ -21,50 +25,158 @@ import java.sql.*;
  */
 public class PlanDBContext extends DBContext<Plan> {
 
+//    public static void main(String[] args) {
+//        PlanDBContext dbContext = new PlanDBContext(); // Create PlanDBContext instance
+//
+//        // Step 1: Create a dummy Plan object and set its properties
+//        PlanDBContext db = new PlanDBContext();
+//        Plan dummyPlan = db.get(30);
+//
+//        System.out.println(dummyPlan.getName());
+//        PlanCampaignDBContext pc = new PlanCampaignDBContext();
+//        for (PlanCampaign p : pc.list()) {
+//            if (p.getPlan().getId() == (30)) {
+//                System.out.println(p.getQuantity() + ", " + p.getEstimate());
+//            }
+//        }
+//        System.out.println(dummyPlan.getCampains());
+//
+//        try {
+//            // Step 3: Insert the dummy plan into the database
+//            dbContext.insert(dummyPlan);
+//            System.out.println("Dummy plan inserted successfully!");
+//
+//            // Step 4: Fetch the inserted plan to verify it was added
+//            Plan fetchedPlan = dbContext.get(dummyPlan.getId());
+//            if (fetchedPlan != null) {
+//                System.out.println("Fetched plan: " + fetchedPlan.getName());
+//            } else {
+//                System.out.println("No plan found with the given ID.");
+//            }
+//
+//            // Step 5: Delete the dummy plan
+//            dbContext.delete(dummyPlan);
+//            System.out.println("Dummy plan deleted successfully!");
+//
+//            // Step 6: Verify deletion
+//            Plan deletedPlan = dbContext.get(dummyPlan.getId());
+//            if (deletedPlan == null) {
+//                System.out.println("Plan deleted successfully!");
+//            } else {
+//                System.out.println("Failed to delete the plan. It still exists in the database.");
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            System.out.println("Error during plan processing: " + e.getMessage());
+//        }
+//    }
     public static void main(String[] args) {
-        PlanDBContext dbContext = new PlanDBContext(); // Create PlanDBContext instance
+        // Create an instance of PlanDBContext
+        PlanDBContext planDBContext = new PlanDBContext();
 
-        // Step 1: Create a dummy Plan object and set its properties
-        PlanDBContext db = new PlanDBContext();
-        Plan dummyPlan = db.get(30);
+        // Retrieve plans for a specific user
+        String userName = "admin2"; // Example username
+        ArrayList<Plan> userPlans = planDBContext.getPlansByUser(userName);
 
-        System.out.println(dummyPlan.getName());
-        PlanCampaignDBContext pc = new PlanCampaignDBContext();
-        for (PlanCampaign p : pc.list()) {
-            if (p.getPlan().getId() == (30)) {
-                System.out.println(p.getQuantity() + ", " + p.getEstimate());
+        // Check if any plans were retrieved
+        if (userPlans.isEmpty()) {
+            System.out.println("No plans found for user: " + userName);
+        } else {
+            // Print out the plans and their associated campaigns
+            for (Plan plan : userPlans) {
+                System.out.println("Plan ID: " + plan.getId() + ", Name: " + plan.getName()
+                        + ", Start: " + plan.getStart() + ", End: " + plan.getEnd()
+                        + ", Department: " + plan.getDept().getName()
+                        + ", Manager: " + plan.getDept().getUser().getDisplayname());
+                for (PlanCampaign campaign : plan.getCampains()) {
+                    System.out.println("  - Campaign ID: " + campaign.getId()
+                            + ", Product ID: " + campaign.getProductId()
+                            + ", Product Name: " + campaign.getProduct().getName()
+                            + ", Quantity: " + campaign.getQuantity()
+                            + ", Estimate: " + campaign.getEstimate());
+                }
             }
         }
-        System.out.println(dummyPlan.getCampains());
+    }
 
-        try {
-            // Step 3: Insert the dummy plan into the database
-            dbContext.insert(dummyPlan);
-            System.out.println("Dummy plan inserted successfully!");
+    public ArrayList<Plan> getPlansByUser(String userName) {
+    ArrayList<Plan> plans = new ArrayList<>();
+    Map<Integer, Plan> planMap = new HashMap<>(); // Map to track plans by ID
+    PreparedStatement command = null;
+    
+    try {
+        String sql = "SELECT d.DepartmentID, d.DepartmentName, u.DisplayName, u.UserName, "
+                   + "p.PlanID, p.PlanName, p.StartDate, p.EndDate, "
+                   + "pc.PlanCampnID, pc.ProductID, pc.Quantity, pro.ProductName, pc.Estimate "
+                   + "FROM [User] u "
+                   + "INNER JOIN Department d ON u.UserName = d.UserName "
+                   + "INNER JOIN [Plan] p ON p.DepartmentID = d.DepartmentID "
+                   + "INNER JOIN PlanCampain pc ON p.PlanID = pc.PlanID "
+                   + "INNER JOIN Product pro ON pro.ProductID = pc.ProductID "
+                   + "WHERE u.UserName = ?";
 
-            // Step 4: Fetch the inserted plan to verify it was added
-            Plan fetchedPlan = dbContext.get(dummyPlan.getId());
-            if (fetchedPlan != null) {
-                System.out.println("Fetched plan: " + fetchedPlan.getName());
-            } else {
-                System.out.println("No plan found with the given ID.");
+        command = connection.prepareStatement(sql);
+        command.setString(1, userName);
+        ResultSet rs = command.executeQuery();
+        
+        while (rs.next()) {
+            // Create and populate User object
+            User user = new User();
+            user.setUsername(rs.getString("UserName"));
+            user.setDisplayname(rs.getString("DisplayName"));
+
+            // Create and populate Department object
+            Department department = new Department();
+            department.setId(rs.getInt("DepartmentID"));
+            department.setName(rs.getString("DepartmentName"));
+            department.setUser(user);
+
+            // Create or retrieve the Plan object
+            int planId = rs.getInt("PlanID");
+            Plan plan = planMap.get(planId);
+            if (plan == null) {
+                plan = new Plan();
+                plan.setId(planId);
+                plan.setName(rs.getString("PlanName"));
+                plan.setStart(rs.getDate("StartDate"));
+                plan.setEnd(rs.getDate("EndDate"));
+                plan.setDept(department);
+                
+                planMap.put(planId, plan);
+                plans.add(plan);
             }
 
-            // Step 5: Delete the dummy plan
-            dbContext.delete(dummyPlan);
-            System.out.println("Dummy plan deleted successfully!");
+            // Create and populate PlanCampaign object
+            PlanCampaign planCampaign = new PlanCampaign();
+            planCampaign.setId(rs.getInt("PlanCampnID"));
+            planCampaign.setQuantity(rs.getInt("Quantity"));
+            planCampaign.setEstimate(rs.getFloat("Estimate"));
+            planCampaign.setProductId(rs.getInt("ProductID"));
 
-            // Step 6: Verify deletion
-            Plan deletedPlan = dbContext.get(dummyPlan.getId());
-            if (deletedPlan == null) {
-                System.out.println("Plan deleted successfully!");
-            } else {
-                System.out.println("Failed to delete the plan. It still exists in the database.");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("Error during plan processing: " + e.getMessage());
+            // Create and set Product object, if applicable
+            Product product = new Product();
+            product.setId(planCampaign.getProductId());
+            product.setName(rs.getString("ProductName"));
+            planCampaign.setProduct(product);
+
+            // Add PlanCampaign to the Plan's list of campaigns
+            plan.getCampains().add(planCampaign);
         }
+        } catch (SQLException ex) {
+            Logger.getLogger(PlanDBContext.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                if (command != null) {
+                    command.close();
+                }
+                if (connection != null) {
+                    connection.close(); // Close only if it's not managed by a pool
+                }
+            } catch (SQLException ex) {
+                Logger.getLogger(PlanDBContext.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        return plans;
     }
 
     @Override
@@ -104,7 +216,8 @@ public class PlanDBContext extends DBContext<Plan> {
             String insertPlanSQL = "INSERT INTO [Plan] (PlanName, StartDate, EndDate, Quantity, DepartmentID) VALUES (?, ?, ?, ?, ?)";
             PreparedStatement ps = connection.prepareStatement(insertPlanSQL, Statement.RETURN_GENERATED_KEYS);
 
-            ps.setString(1, plan.getName());
+            Validation valid = new Validation();
+            ps.setString(1, valid.nameValid(plan.getName()));
             ps.setDate(2, plan.getStart());
             ps.setDate(3, plan.getEnd());
             ps.setInt(4, plan.getQuantity());
@@ -149,7 +262,8 @@ public class PlanDBContext extends DBContext<Plan> {
             PreparedStatement ps = null;
 
             ps = connection.prepareStatement(updatePlanSQL);
-            ps.setString(1, plan.getName());
+            Validation valid = new Validation();
+            ps.setString(1, valid.nameValid(plan.getName()));
             ps.setDate(2, plan.getStart());
             ps.setDate(3, plan.getEnd());
             ps.setInt(4, plan.getQuantity());

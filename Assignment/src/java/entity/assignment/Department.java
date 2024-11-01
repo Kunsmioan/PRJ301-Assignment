@@ -4,6 +4,8 @@
  */
 package entity.assignment;
 
+import entity.accesscontrol.User;
+
 /**
  *
  * @author sonnt-local
@@ -12,7 +14,25 @@ public class Department {
     private int id;
     private String name;
     private String type;
+    private String username;
+    private User user;
 
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+    
     public int getId() {
         return id;
     }

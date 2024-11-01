@@ -13,6 +13,15 @@ import java.util.ArrayList;
 public class User {
     private String username;
     private String password;
+    private String displayname;
+
+    public String getDisplayname() {
+        return displayname;
+    }
+
+    public void setDisplayname(String displayname) {
+        this.displayname = displayname;
+    }
     private ArrayList<Role> roles = new ArrayList<>();
 
     public ArrayList<Role> getRoles() {

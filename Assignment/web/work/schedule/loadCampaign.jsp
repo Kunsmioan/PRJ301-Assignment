@@ -41,6 +41,7 @@
     <body>
 
         <p><b>The detailed production plan is listed in the table below:</b></p>
+        
         <table>
             <tr class="header">
                 <th rowspan="2">ProductID</th>
@@ -49,6 +50,7 @@
                 <c:forEach items="${requestScope.DSQ}" var ="Date">
                     <th colspan="3">${Date.date}</th>
                     </c:forEach>
+                <th rowspan="2">Note</th>
 
             </tr>
             <tr class="subheader">
@@ -75,6 +77,7 @@
                             <td></td> <!-- Fill blank if no quantity found -->
                         </c:if>
                     </c:forEach>
+                            <td></td>
                 </tr>
             </c:forEach>
 

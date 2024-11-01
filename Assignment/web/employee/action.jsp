@@ -26,7 +26,8 @@
                     <c:when test="${account.username == 'admin4' 
                                     && (feature.id == 1 || feature.id == 4 
                                     || feature.id == 6 || feature.id == 7 
-                                    || feature.id == 8 || feature.id == 9)}">
+                                    || feature.id == 8 || feature.id == 9
+                                    )}">
                         <li>
                             <a href="${pageContext.request.contextPath}${feature.url}">${feature.name}</a>
                         </li>
@@ -36,7 +37,8 @@
                                     || account.username == 'admin2' 
                                     || account.username == 'admin3') 
                                     && (feature.id == 5 || feature.id == 6 
-                                    || feature.id == 7 || feature.id == 9)}">
+                                    || feature.id == 7 || feature.id == 9
+                                    || feature.id == 10)}">
                         <li>
                             <a href="${pageContext.request.contextPath}${feature.url}">${feature.name}</a>
                         </li>

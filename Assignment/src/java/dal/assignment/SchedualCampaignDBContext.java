@@ -56,7 +56,7 @@ public class SchedualCampaignDBContext extends DBContext<SchedualCampaign> {
         command = connection.prepareStatement(sql);
         ResultSet rs = command.executeQuery();
 
-            Map<Date, DateShiftData> dateShiftMap = new LinkedHashMap<>();
+        Map<Date, DateShiftData> dateShiftMap = new LinkedHashMap<>();
 
         while (rs.next()) {
             Date date = rs.getDate("Date");

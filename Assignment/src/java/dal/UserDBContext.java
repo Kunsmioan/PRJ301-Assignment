@@ -71,7 +71,7 @@ public class UserDBContext extends DBContext<User> {
 
     public User get(String username, String password) {
         //encoding username / password
-        String sql = "SELECT username FROM [User] \n"
+        String sql = "SELECT username, displayname FROM [User] \n"
                 + "WHERE username = ? AND [password] = ?";
         PreparedStatement stm = null;
         User user = null;
@@ -83,6 +83,7 @@ public class UserDBContext extends DBContext<User> {
             if (rs.next()) {
                 user = new User();
                 user.setUsername(username);
+                user.setDisplayname(rs.getString("displayname"));
             }
         } catch (java.sql.SQLException ex) {
             Logger.getLogger(UserDBContext.class.getName()).log(Level.SEVERE, null, ex);
