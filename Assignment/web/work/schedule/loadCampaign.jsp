@@ -69,7 +69,7 @@
                         <c:set var="foundShift" value="false"/>
                         <c:forEach items="${dateShiftData.shifts}" var="shiftData">
                             <c:if test="${shiftData.productId == product.id}">
-                                <td>${shiftData.shift}=${shiftData.quantity}</td>
+                                <td>${shiftData.quantity}</td>
                                 <c:set var="foundShift" value="true"/>
                             </c:if>
                         </c:forEach>
