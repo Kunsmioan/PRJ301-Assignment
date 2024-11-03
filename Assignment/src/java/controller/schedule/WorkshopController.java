@@ -5,9 +5,14 @@
 package controller.schedule;
 
 import controller.accesscontrol.BaseRBACController;
+import dal.assignment.EmployeeScheduleDBContext;
+import dal.assignment.PlanCampaignDBContext;
 import dal.assignment.PlanDBContext;
+import dal.assignment.SchedualCampaignDBContext;
 import entity.accesscontrol.User;
+import entity.assignment.DateShiftData;
 import entity.assignment.Plan;
+import entity.shedule.Employee;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -16,6 +21,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.util.ArrayList;
+import java.sql.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -32,11 +41,25 @@ public class WorkshopController extends BaseRBACController {
         PlanDBContext planDB = new PlanDBContext();
         ArrayList<Plan> plans = planDB.getPlansByUser(username);
 
-        // Set plans as a request attribute to be accessed in JSP
+        // plan
         request.setAttribute("plans", plans);
 
-        // Pass the account details to the JSP if needed for display
+        // Account
         request.setAttribute("account", account);
+
+        //Schedule employee
+        EmployeeScheduleDBContext esdb = new EmployeeScheduleDBContext();
+        SchedualCampaignDBContext scdb = new SchedualCampaignDBContext();
+        ArrayList<DateShiftData> dateShifts = scdb.listDSQ();
+        Map<Date, ArrayList<Employee>> listByDate = new HashMap<>();
+
+        for (DateShiftData dateShiftData : dateShifts) {
+            Date date = dateShiftData.getDate();
+            ArrayList<Employee> listES = esdb.getAttendence(account.getDepartment().getId(), (java.sql.Date) date);
+            listByDate.put(date, listES); // Store the list of employees for this date
+        }
+
+        request.setAttribute("listByDate", listByDate);
 
         request.getRequestDispatcher("../schedule/workshop.jsp").forward(request, response);
     }

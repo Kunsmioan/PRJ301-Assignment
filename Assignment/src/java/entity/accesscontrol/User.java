@@ -4,6 +4,7 @@
  */
 package entity.accesscontrol;
 
+import entity.assignment.Department;
 import java.util.ArrayList;
 
 /**
@@ -14,6 +15,15 @@ public class User {
     private String username;
     private String password;
     private String displayname;
+    private Department department;
+
+    public Department getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(Department department) {
+        this.department = department;
+    }
 
     public String getDisplayname() {
         return displayname;

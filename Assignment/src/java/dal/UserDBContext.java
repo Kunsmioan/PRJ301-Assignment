@@ -7,6 +7,7 @@ package dal;
 import entity.accesscontrol.Feature;
 import entity.accesscontrol.Role;
 import entity.accesscontrol.User;
+import entity.assignment.Department;
 import java.util.ArrayList;
 import java.sql.*;
 import java.util.logging.Level;
@@ -71,7 +72,7 @@ public class UserDBContext extends DBContext<User> {
 
     public User get(String username, String password) {
         //encoding username / password
-        String sql = "SELECT username, displayname FROM [User] \n"
+        String sql = "SELECT username, displayname, DepartmentID FROM [User] \n"
                 + "WHERE username = ? AND [password] = ?";
         PreparedStatement stm = null;
         User user = null;
@@ -83,6 +84,10 @@ public class UserDBContext extends DBContext<User> {
             if (rs.next()) {
                 user = new User();
                 user.setUsername(username);
+                Department d = new Department();
+                d.setId(rs.getInt("DepartmentID"));
+                
+                user.setDepartment(d);
                 user.setDisplayname(rs.getString("displayname"));
             }
         } catch (java.sql.SQLException ex) {

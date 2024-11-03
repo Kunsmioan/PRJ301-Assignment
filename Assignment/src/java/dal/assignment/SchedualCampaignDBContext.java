@@ -30,6 +30,11 @@ public class SchedualCampaignDBContext extends DBContext<SchedualCampaign> {
         // Retrieve the list of date and shift data
         List<DateShiftData> dateShiftDataList = db.listDSQ();
 
+        System.out.println("List of Dates:");
+        for (DateShiftData dateShiftData : dateShiftDataList) {
+            System.out.println(dateShiftData.getDate());
+        }
+
         // Iterate over each DateShiftData entry
         for (DateShiftData dateShiftData : dateShiftDataList) {
             // Print the date
@@ -44,55 +49,54 @@ public class SchedualCampaignDBContext extends DBContext<SchedualCampaign> {
 
     }
 
-   public List<DateShiftData> listDSQ() {
-    List<DateShiftData> dateShiftDataList = new ArrayList<>();
-    PreparedStatement command = null;
-    try {
-        String sql = "SELECT p.ProductName, p.ProductID, sc.[Date], sc.Shift, sc.Quantity " +
-                     "FROM [dbo].[SchedualCampaign] sc " +
-                     "INNER JOIN [dbo].[PlanCampain] pc ON sc.PlanCampnID = pc.PlanCampnID " +
-                     "INNER JOIN [dbo].[Product] p ON p.ProductID = pc.ProductID ";
-
-        command = connection.prepareStatement(sql);
-        ResultSet rs = command.executeQuery();
-
-        Map<Date, DateShiftData> dateShiftMap = new LinkedHashMap<>();
-
-        while (rs.next()) {
-            Date date = rs.getDate("Date");
-            int shift = rs.getInt("Shift");
-            int quantity = rs.getInt("Quantity");
-            String productName = rs.getString("ProductName");
-            int productId = rs.getInt("ProductID");
-
-            // Get or create the DateShiftData object for the current date
-            DateShiftData currentDateData = dateShiftMap.get(date);
-            if (currentDateData == null) {
-                currentDateData = new DateShiftData(date);
-                dateShiftMap.put(date, currentDateData);
-            }
-
-            // Add shift data for each product
-            currentDateData.addShift(new ShiftData(productId, productName, shift, quantity));
-        }
-
-        // Convert the map values to a list
-        dateShiftDataList.addAll(dateShiftMap.values());
-
-    } catch (SQLException ex) {
-        Logger.getLogger(SchedualCampaignDBContext.class.getName()).log(Level.SEVERE, null, ex);
-    } finally {
+    public ArrayList<DateShiftData> listDSQ() {
+        ArrayList<DateShiftData> dateShiftDataList = new ArrayList<>();
+        PreparedStatement command = null;
         try {
-            if (command != null) {
-                command.close();
+            String sql = "SELECT p.ProductName, p.ProductID, sc.[Date], sc.Shift, sc.Quantity "
+                    + "FROM [dbo].[SchedualCampaign] sc "
+                    + "INNER JOIN [dbo].[PlanCampain] pc ON sc.PlanCampnID = pc.PlanCampnID "
+                    + "INNER JOIN [dbo].[Product] p ON p.ProductID = pc.ProductID ";
+
+            command = connection.prepareStatement(sql);
+            ResultSet rs = command.executeQuery();
+
+            Map<Date, DateShiftData> dateShiftMap = new LinkedHashMap<>();
+
+            while (rs.next()) {
+                Date date = rs.getDate("Date");
+                int shift = rs.getInt("Shift");
+                int quantity = rs.getInt("Quantity");
+                String productName = rs.getString("ProductName");
+                int productId = rs.getInt("ProductID");
+
+                // Get or create the DateShiftData object for the current date
+                DateShiftData currentDateData = dateShiftMap.get(date);
+                if (currentDateData == null) {
+                    currentDateData = new DateShiftData(date);
+                    dateShiftMap.put(date, currentDateData);
+                }
+
+                // Add shift data for each product
+                currentDateData.addShift(new ShiftData(productId, productName, shift, quantity));
             }
+
+            // Convert the map values to a list
+            dateShiftDataList.addAll(dateShiftMap.values());
+
         } catch (SQLException ex) {
             Logger.getLogger(SchedualCampaignDBContext.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                if (command != null) {
+                    command.close();
+                }
+            } catch (SQLException ex) {
+                Logger.getLogger(SchedualCampaignDBContext.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
+        return dateShiftDataList;
     }
-    return dateShiftDataList;
-}
-
 
     @Override
     public void insert(SchedualCampaign entity) {

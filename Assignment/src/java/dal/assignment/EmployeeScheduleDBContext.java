@@ -16,6 +16,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.sql.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,10 +25,10 @@ import java.util.logging.Logger;
  *
  * @author Admin
  */
-public class EmployeeSchedule extends DBContext<Employee>{
+public class EmployeeScheduleDBContext extends DBContext<Employee>{
     public static void main(String[] args) {
-        EmployeeSchedule dbContext = new EmployeeSchedule();
-        List<Employee> employees = dbContext.getEmployeeProductInfo(1);
+        EmployeeScheduleDBContext dbContext = new EmployeeScheduleDBContext();
+        List<Employee> employees = dbContext.getAttendence(1,  Date.valueOf("2024-10-01"));
 
             // Display the retrieved data
             for (Employee employee : employees) {
@@ -44,8 +45,9 @@ public class EmployeeSchedule extends DBContext<Employee>{
             }
 
     }
-    public List<Employee> getEmployeeProductInfo(int departmentID) {
-        List<Employee> employeeList = new ArrayList<>();
+    
+    public ArrayList<Employee> getAttendence(int departmentID, Date date) {
+        ArrayList<Employee> employeeList = new ArrayList<>();
         String query = """
             SELECT e.EmployeeID, e.EmployeeName, e.RoleID, p.ProductID, p.ProductName,
                    a.Quantity, a.Alpha, e.DepartmentID, sc.Date
@@ -55,12 +57,13 @@ public class EmployeeSchedule extends DBContext<Employee>{
             INNER JOIN SchedualCampaign sc ON sc.ScID = se.ScID
             INNER JOIN PlanCampain pc ON pc.PlanCampnID = sc.PlanCampnID
             INNER JOIN Product p ON p.ProductID = pc.ProductID
-            WHERE e.DepartmentID = ?
+            WHERE e.DepartmentID = ? and sc.Date = ?
             ORDER BY e.EmployeeID
             """;
 
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setInt(1, departmentID);
+            stmt.setDate(2, date);
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
