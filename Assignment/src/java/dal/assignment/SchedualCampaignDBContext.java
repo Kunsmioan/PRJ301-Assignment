@@ -8,7 +8,7 @@ import dal.DBContext;
 import entity.assignment.DateShiftData;
 import entity.assignment.Plan;
 import entity.assignment.PlanCampaign;
-import entity.assignment.SchedualCampaign;
+import entity.shedule.SchedualCampaign;
 import entity.assignment.ShiftData;
 import java.util.ArrayList;
 import java.util.logging.Level;

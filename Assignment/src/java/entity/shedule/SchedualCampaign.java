@@ -2,8 +2,10 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package entity.assignment;
+package entity.shedule;
 
+import entity.assignment.Plan;
+import entity.assignment.PlanCampaign;
 import java.util.Date;
 
 /**

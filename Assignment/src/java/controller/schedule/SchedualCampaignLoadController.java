@@ -10,7 +10,7 @@ import dal.assignment.SchedualCampaignDBContext;
 import entity.accesscontrol.User;
 import entity.assignment.DateShiftData;
 import entity.assignment.Product;
-import entity.assignment.SchedualCampaign;
+import entity.shedule.SchedualCampaign;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
