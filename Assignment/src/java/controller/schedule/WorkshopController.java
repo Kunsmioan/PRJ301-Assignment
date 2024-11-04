@@ -22,7 +22,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.sql.Date;
-import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.List;
 import java.util.Map;
 
@@ -51,7 +51,7 @@ public class WorkshopController extends BaseRBACController {
         EmployeeScheduleDBContext esdb = new EmployeeScheduleDBContext();
         SchedualCampaignDBContext scdb = new SchedualCampaignDBContext();
         ArrayList<DateShiftData> dateShifts = scdb.listDSQ();
-        Map<Date, ArrayList<Employee>> listByDate = new HashMap<>();
+        Map<Date, ArrayList<Employee>> listByDate = new TreeMap<>();
 
         for (DateShiftData dateShiftData : dateShifts) {
             Date date = dateShiftData.getDate();

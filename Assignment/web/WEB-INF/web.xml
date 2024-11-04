@@ -40,6 +40,14 @@
         <servlet-name>WorkshopController</servlet-name>
         <servlet-class>controller.schedule.WorkshopController</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>EmployeeLoadController</servlet-name>
+        <servlet-class>controller.employee.EmployeeLoadController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>EmployeeSearchController</servlet-name>
+        <servlet-class>controller.employee.EmployeeSearchController</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>LoginController</servlet-name>
         <url-pattern>/login</url-pattern>
@@ -75,6 +83,14 @@
     <servlet-mapping>
         <servlet-name>WorkshopController</servlet-name>
         <url-pattern>/work/schedule/workshop</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>EmployeeLoadController</servlet-name>
+        <url-pattern>/employee/list</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>EmployeeSearchController</servlet-name>
+        <url-pattern>/employee/search</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>50</session-timeout>

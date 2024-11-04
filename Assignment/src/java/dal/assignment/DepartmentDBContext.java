@@ -18,6 +18,17 @@ import java.util.logging.Logger;
  * @author sonnt-local
  */
 public class DepartmentDBContext extends DBContext<Department> {
+     public static void main(String[] args) {
+        DepartmentDBContext dbContext = new DepartmentDBContext();
+
+        // Call the list method and get the departments
+        ArrayList<Department> departments = dbContext.list();
+
+        // Print each department
+        for (Department dept : departments) {
+            System.out.println("ID: " + dept.getId() + ", Name: " + dept.getName());
+        }
+    }
 
     @Override
     public void insert(Department entity) {
@@ -39,14 +50,14 @@ public class DepartmentDBContext extends DBContext<Department> {
         ArrayList<Department> depts = new ArrayList<>();
         PreparedStatement command = null;
         try {
-            String sql = "SELECT did, dname FROM Department";
+            String sql = "SELECT DepartmentID, DepartmentName FROM Department";
 
             command = connection.prepareStatement(sql);
             ResultSet rs = command.executeQuery();
             while (rs.next()) {
                 Department d = new Department();
-                d.setId(rs.getInt("did"));
-                d.setName(rs.getString("dname"));
+                d.setId(rs.getInt("DepartmentID"));
+                d.setName(rs.getString("DepartmentName"));
                 depts.add(d);
             }
 
