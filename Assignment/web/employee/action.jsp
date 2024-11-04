@@ -37,7 +37,7 @@
                                     || account.username == 'admin2' 
                                     || account.username == 'admin3') 
                                     && (feature.id == 5 || feature.id == 6 
-                                    || feature.id == 7 || feature.id == 9
+                                    || feature.id == 7 
                                     || feature.id == 10)}">
                         <li>
                             <a href="${pageContext.request.contextPath}${feature.url}">${feature.name}</a>
