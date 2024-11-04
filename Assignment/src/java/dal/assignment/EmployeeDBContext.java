@@ -41,21 +41,6 @@ public class EmployeeDBContext extends DBContext<Employee> {
                                ", Department Name: " + (employee.getDepartment() != null ? employee.getDepartment().getName() : "N/A"));
         }
     }
-
-    @Override
-    public void insert(Employee entity) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void update(Employee entity) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void delete(Employee entity) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
     public ArrayList<Employee> search(Integer id, String name, Boolean gender, String address, Date from, Date to, Integer did) {
         String sql = "SELECT e.EmployeeID,e.EmployeeName,e.gender,e.address,e.dob,d.DepartmentID,d.DepartmentName FROM Employee e \n"
                 + "	INNER JOIN Department d ON e.DepartmentID = d.DepartmentID\n"
@@ -131,6 +116,22 @@ public class EmployeeDBContext extends DBContext<Employee> {
         }
         return emps;
     }
+
+    @Override
+    public void insert(Employee entity) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void update(Employee entity) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void delete(Employee entity) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+    
 
 
     @Override
